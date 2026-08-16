@@ -1,0 +1,49 @@
+name: Package toolbox and publish release
+
+# Run when a version tag is pushed. Tags are not branch scoped, so the job
+# checks that the tagged commit is actually on main before releasing.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Full history so the tag can be traced back to main
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check the tag is on main
+        run: |
+          if ! git branch -r --contains "$GITHUB_SHA" --format='%(refname:short)' | grep -qx 'origin/main'; then
+            echo "::error::Tag $GITHUB_REF_NAME does not point at a commit on main."
+            exit 1
+          fi
+
+      - name: Check the tag matches the toolbox version
+        run: |
+          version=$(sed -n 's/^% Version \([0-9.]*\).*/\1/p' src/ps3controller/Contents.m)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match Contents.m version $version."
+            exit 1
+          fi
+
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v3
+
+      - name: Run build
+        uses: matlab-actions/run-build@v3
+
+      - name: Create release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: releases/sn3218.mltbx
+          fail_on_unmatched_files: true
+          generate_release_notes: true
