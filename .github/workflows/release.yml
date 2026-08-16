@@ -29,7 +29,7 @@ jobs:
 
       - name: Check the tag matches the toolbox version
         run: |
-          version=$(sed -n 's/^% Version \([0-9.]*\).*/\1/p' src/ps3controller/Contents.m)
+          version=$(sed -n 's/^% Version \([0-9.]*\).*/\1/p' tbx/sn3218/Contents.m)
           if [ "v$version" != "$GITHUB_REF_NAME" ]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match Contents.m version $version."
             exit 1
