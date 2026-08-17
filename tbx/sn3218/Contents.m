@@ -1,5 +1,5 @@
 % SN3218
-% Version 1.0.0 R2026a 16-Aug-2026
+% Version 1.0.1 R2026a 16-Aug-2026
 %
 % SN3218 LED driver block
 %
